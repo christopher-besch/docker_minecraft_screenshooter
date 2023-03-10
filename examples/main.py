@@ -17,7 +17,7 @@ def wait_and_click(disp: SmartDisplay, pyautogui, button_image: str, tries: int,
             raise AssertionError('Exceeded max tries, something is fishy')
 
         if click_when_seen is not None and (other_btn := pyautogui.locateCenterOnScreen(click_when_seen)) is not None:
-            print(f'clicked {click_when_seen}')
+            print(f'clicked {click_when_seen}', end='\r')
             pyautogui.click(*other_btn)
         sleep(try_duration)
     print()
@@ -42,6 +42,7 @@ def microsoft_login(disp: SmartDisplay, pyautogui, email: str, password: str, se
     wait_and_click(disp, pyautogui, 'proceed_btn.png', 60)
     wait_and_click(disp, pyautogui, 'direct_connection.png', 60)
     wait_and_text(disp, pyautogui, 'server_address_text.png', server_address, 60)
+    wait_and_click(disp, pyautogui, 'join_server.png', 60)
 
 
 def main():
@@ -52,9 +53,11 @@ def main():
                             os.environ['MICROSOFT_EMAIL'],
                             os.environ['MICROSOFT_PASSWORD'],
                             os.environ['SERVER_ADDRESS'])
-            while(True):
-                sleep(1)
-                disp.waitgrab().save('something.png')
+            # while(True):
+            #     sleep(1)
+            #     disp.waitgrab().save('something.png')
+            sleep(20)
+            disp.waitgrab().save('something.png')
 
 
 if __name__ == '__main__':
