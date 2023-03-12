@@ -8,9 +8,8 @@ RUN apt-get -y install default-jre libgbm1 libgdk-pixbuf2.0-0 libgtk-3-0 xdg-uti
     wget https://launcher.mojang.com/download/Minecraft.deb && \
     dpkg -i Minecraft.deb
 
-COPY ./src/ /mc_scr/
 COPY ./ref_imgs /mc_scr/ref_imgs
-# /mc_scr needs to be mounted on host
+COPY ./src/ /mc_scr/
 
 WORKDIR /mc_scr
 ENTRYPOINT ["/usr/bin/python3", "-u", "main.py"]

@@ -5,13 +5,22 @@ services:
         image: "chrisbesch/docker_minecraft_screenshooter"
         container_name: "MinecraftScreenshooter"
         volumes:
-            - "${MC_SCR_PATH}/minecraft:/root/minecraft"
+            - "${MC_SCR_PATH}/minecraft:/root/.minecraft"
             - "${MC_SCR_PATH}/notfound:/mc_scr/notfound"
+            - "${MC_SCR_PATH}/captures:/mc_scr/captures"
         cpus: 1
         environment:
             - MICROSOFT_EMAIL
             - MICROSOFT_PASSWORD
             - SERVER_ADDRESS
+            - POS_X
+            - POS_Y
+            - POS_Z
+            - X_ROT
+            - Y_ROT
+            - SCREENSHOT_NAME
+            - DONT_INIT
+            - FRAME_TIME
             - TZ=Europe/Berlin
-        restart: "unless-stopped"
+        # restart: "unless-stopped"
 
