@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+    MinecraftScreenshooter:
+        image: "chrisbesch/docker_minecraft_screenshooter"
+        container_name: "MinecraftScreenshooter"
+        volumes:
+            - "${MC_SCR_PATH}/minecraft:/root/minecraft"
+            - "${MC_SCR_PATH}/notfound:/mc_scr/notfound"
+        cpus: 1
+        environment:
+            - MICROSOFT_EMAIL
+            - MICROSOFT_PASSWORD
+            - SERVER_ADDRESS
+            - TZ=Europe/Berlin
+        restart: "unless-stopped"
+
