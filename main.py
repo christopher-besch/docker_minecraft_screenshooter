@@ -10,26 +10,27 @@ import Xlib.display
 
 def get_pyautogui():
     import pyautogui
-    importlib.reload(pyautogui)
     pyautogui._pyautogui_x11._display = Xlib.display.Display(os.environ['DISPLAY'])
     return pyautogui
 
 
-def wait(disp: SmartDisplay, pyautogui, image_to_wait_for: str, tries: int, try_duration = 1, click_when_seen: Optional[str] = None):
+def wait(disp: SmartDisplay, pyautogui, image_to_wait_for: str, tries: int, try_duration = 1, click_when_seen: Optional[str] = None, done_when_not_seen=False):
+    wait_img = f'reference/{image_to_wait_for}'
+    notfound_img = f'notfound/{image_to_wait_for}'
     def get_status(i: int):
-        return f'waiting for {image_to_wait_for}: {i}'
+        return f'waiting for{" to go away" if done_when_not_seen else ""} {image_to_wait_for}: {i}/{tries}'
 
     i = 0
     print(get_status(i), end='\r')
-    while((image_center := pyautogui.locateCenterOnScreen(image_to_wait_for)) is None):
+    while(((image_center := pyautogui.locateCenterOnScreen(wait_img)) is not None) == done_when_not_seen):
         i += 1
         if i == tries:
             raise DisplayTimeoutError('Exceeded max tries, something is fishy')
         print(get_status(i), end='\r')
-        disp.waitgrab().save(f'notfound_{image_to_wait_for}')
+        disp.waitgrab().save(notfound_img)
 
         if click_when_seen is not None and (other_btn := pyautogui.locateCenterOnScreen(click_when_seen)) is not None:
-            print(f'{get_status(i)}      : clicked {click_when_seen}', end='\r')
+            print(f'{get_status(i)}        : clicked {click_when_seen}', end='\r')
             pyautogui.click(*other_btn)
         sleep(try_duration)
     print()
@@ -49,7 +50,7 @@ def wait_and_text(disp: SmartDisplay, pyautogui, text_box_image: str, text: str,
     pyautogui.write(text)
 
 
-def start_minecraft(disp: SmartDisplay, pyautogui, email: str, password: str):
+def start_minecraft(disp: SmartDisplay, pyautogui, email: str, password: str, initial_start: bool):
     print('starting minecraft')
     wait_and_click(disp, pyautogui, 'microsoft_login_btn.png', 500, click_when_seen='delete_user.png')
     wait_and_text(disp, pyautogui, 'microsoft_email_text.png', email, 60)
@@ -59,12 +60,15 @@ def start_minecraft(disp: SmartDisplay, pyautogui, email: str, password: str):
     wait_and_click(disp, pyautogui, 'microsoft_login_next.png', 120)
     wait_and_click(disp, pyautogui, 'play_btn.png', 120)
 
-    wait(disp, pyautogui, 'multiplayer_btn.png', 500)
+    if initial_start:
+        wait(disp, pyautogui, 'low_res_multiplayer_btn.png', 1000)
+    else:
+        wait(disp, pyautogui, 'multiplayer_btn.png', 500)
 
 
 def join_server(disp: SmartDisplay, pyautogui, email: str, password: str, server_address: str):
     print('join server')
-    start_minecraft(disp, pyautogui, email, password)
+    start_minecraft(disp, pyautogui, email, password, False)
     
     wait_and_click(disp, pyautogui, 'multiplayer_btn.png', 60)
     wait_and_click(disp, pyautogui, 'proceed_btn.png', 60)
@@ -72,31 +76,46 @@ def join_server(disp: SmartDisplay, pyautogui, email: str, password: str, server
     wait_and_text(disp, pyautogui, 'server_address_text.png', server_address, 60)
     wait_and_click(disp, pyautogui, 'join_server.png', 60)
 
-    # TODO: wait for something
+    wait(disp, pyautogui, 'menu_background.png', 120, done_when_not_seen=True)
+    pyautogui.press('F1')
 
 
-def quit_game(disp: SmartDisplay, pyautogui):
+def quit_game(disp: SmartDisplay, pyautogui, proc: EasyProcess):
     print('quit')
-    wait_and_click(disp, pyautogui, 'quit_game.png', 500)
+    wait_and_click(disp, pyautogui, 'low_res_quit_game.png', 500)
+    while(proc.is_alive()):
+        sleep(1)
 
 
 def init(email: str, password: str):
+    options_path = '/root/.minecraft/options.txt'
     print('init')
-    with SmartDisplay(use_xauth=True) as disp:
+    # always behave the same
+    if os.path.exists(options_path):
+        os.remove(options_path)
+    with SmartDisplay(use_xauth=True, size=(1920, 1080)) as disp:
         pyautogui = get_pyautogui()
-        with EasyProcess(['minecraft-launcher']):
-            start_minecraft(disp, pyautogui, email, password)
-            quit_game(disp, pyautogui)
+        with EasyProcess(['minecraft-launcher']) as proc:
+            start_minecraft(disp, pyautogui, email, password, True)
+            wait_and_click(disp, pyautogui, 'low_res_options.png', 60)
+            wait_and_click(disp, pyautogui, 'low_res_minecraft_done.png', 60)
+            quit_game(disp, pyautogui, proc)
 
-    subprocess.run(['/bin/sed', '-i', 's/^tutorialStep:.*$/tutorialStep:none/', '/root/.minecraft/options.txt'])
+    def set_cfg(key: str, value: str):
+        subprocess.run(['/bin/sed', '-i', f's/^{key}:.*$/{key}:{value}/', options_path]).check_returncode()
+    print("setting config.txt")
+    set_cfg('tutorialStep', 'none')
+    set_cfg('maxFps', '10')
+    set_cfg('fullscreen', 'true')
 
-    with SmartDisplay(use_xauth=True) as disp:
-        pyautogui = get_pyautogui()
-        with EasyProcess(['minecraft-launcher']):
-            start_minecraft(disp, pyautogui, email, password)
-            while(True):
-                sleep(1)
-                disp.waitgrab().save('something.png')
+
+def try_display(func, *opts):
+    while (True):
+        try:
+            func(*opts)
+            break
+        except DisplayTimeoutError as e:
+            print(e)
 
 
 def main():
@@ -104,13 +123,15 @@ def main():
     password = os.environ['MICROSOFT_PASSWORD']
     server_address = os.environ['SERVER_ADDRESS']
 
-    while (True):
-        try:
-            init(email, password)
-            break
-        except DisplayTimeoutError as e:
-            print(e)
+    try_display(init, email, password)
 
+    with SmartDisplay(use_xauth=True, size=(1920, 1080)) as disp:
+        pyautogui = get_pyautogui()
+        with EasyProcess(['minecraft-launcher']):
+            join_server(disp, pyautogui, email, password, server_address)
+            while(True):
+                sleep(1)
+                disp.waitgrab().save('something.png')
 
 if __name__ == '__main__':
     main()
