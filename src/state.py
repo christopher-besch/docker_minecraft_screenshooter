@@ -14,6 +14,7 @@ class State:
         self.server_address = os.environ['SERVER_ADDRESS']
         self.wet_init = os.environ['WET_INIT'].lower() == "true"
         self.frame_time = float(os.environ['FRAME_TIME'])
+        self.instructions_path = os.environ['INSTRUCTIONS_PATH']
 
 class ScreenshotPos:
     def __init__(self, x: float, y: float, z: float, x_rot: float, y_rot: float, name: str):

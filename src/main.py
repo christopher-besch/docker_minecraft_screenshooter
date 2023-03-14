@@ -7,7 +7,7 @@ from pyvirtualdisplay.smartdisplay import SmartDisplay, DisplayTimeoutError
 from gui_interaction import connection_lost, get_pyautogui
 from mincraft_interaction import join_server, tp, init
 from state import State, ScreenshotPos
-from load_instructions import load_instructions
+from load_instructions import ensure_load_instructions
 
 
 def take_screenshots(state: State, instructions: List[ScreenshotPos]) -> None:
@@ -54,7 +54,7 @@ def main() -> None:
         for _ in range(0, 5):
             try:
                 while(True):
-                    instructions = load_instructions(state)
+                    instructions = ensure_load_instructions(state)
                     init(state)
                     run(state, instructions)
             except DisplayTimeoutError as e:

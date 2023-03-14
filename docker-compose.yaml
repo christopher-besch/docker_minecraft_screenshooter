@@ -8,6 +8,7 @@ services:
             - "${MC_SCR_PATH}/minecraft:/root/.minecraft"
             - "${MC_SCR_PATH}/notfound:/mc_scr/notfound"
             - "${MC_SCR_PATH}/captures:/mc_scr/captures"
+            - "${MC_SCR_PATH}/other:/mc_scr/other"
         cpus: $CPUS
         environment:
             - MICROSOFT_EMAIL
@@ -16,5 +17,6 @@ services:
             - MC_SCR_PATH
             - WET_INIT
             - FRAME_TIME
+            - INSTRUCTIONS_PATH=/mc_scr/other/instructions.yaml
         # re- start: "unless-stopped"
 

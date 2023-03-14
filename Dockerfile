@@ -8,8 +8,12 @@ RUN apt-get -y install default-jre libgbm1 libgdk-pixbuf2.0-0 libgtk-3-0 xdg-uti
     wget https://launcher.mojang.com/download/Minecraft.deb && \
     dpkg -i Minecraft.deb
 
+# TODO: move up
+RUN python3 -m pip install pyyaml
+
 COPY ./ref_imgs /mc_scr/ref_imgs
 COPY ./src/ /mc_scr/
 
 WORKDIR /mc_scr
-ENTRYPOINT ["/usr/bin/python3", "-u", "main.py"]
+ENTRYPOINT ["/bin/bash", "-c", "/usr/bin/python3 -u main.py | tee /mc_scr/other/mc_scr.log"]
+
