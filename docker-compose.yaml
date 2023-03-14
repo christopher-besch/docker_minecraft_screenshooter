@@ -8,19 +8,13 @@ services:
             - "${MC_SCR_PATH}/minecraft:/root/.minecraft"
             - "${MC_SCR_PATH}/notfound:/mc_scr/notfound"
             - "${MC_SCR_PATH}/captures:/mc_scr/captures"
-        cpus: 1
+        cpus: $CPUS
         environment:
             - MICROSOFT_EMAIL
             - MICROSOFT_PASSWORD
             - SERVER_ADDRESS
-            - POS_X
-            - POS_Y
-            - POS_Z
-            - X_ROT
-            - Y_ROT
-            - SCREENSHOT_NAME
-            - DONT_INIT
+            - MC_SCR_PATH
+            - WET_INIT
             - FRAME_TIME
-            - TZ=Europe/Berlin
-        # restart: "unless-stopped"
+        # re- start: "unless-stopped"
 
