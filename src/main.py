@@ -16,7 +16,7 @@ def take_screenshots(state: State, instructions: List[ScreenshotPos]) -> None:
         os.makedirs(dir, exist_ok=True)
 
         idx = len(os.listdir(dir))
-        file = f'{dir}/{idx:04d}.png'
+        file = f'{dir}/{pos.x}_{pos.y}_{pos.z}_{pos.x_rot}_{pos.y_rot}_{idx:07d}.png'
         tp(state, pos)
         sleep(0.5)
         print(f'capturing {file}')
@@ -24,8 +24,6 @@ def take_screenshots(state: State, instructions: List[ScreenshotPos]) -> None:
 
 
 def run(state: State, instructions: List[ScreenshotPos]) -> None:
-    if len(instructions) == 0:
-        return
     with SmartDisplay(use_xauth=True, size=(1920, 1080)) as disp:
         state.disp = disp
         state.pyautogui = get_pyautogui()
@@ -34,7 +32,7 @@ def run(state: State, instructions: List[ScreenshotPos]) -> None:
             join_server(state)
             sleep(2)
             state.pyautogui.press('F1')
-            while(len(instructions) != 0):
+            while(True):
                 if connection_lost(state):
                     print('connection lost')
                     break
@@ -44,6 +42,12 @@ def run(state: State, instructions: List[ScreenshotPos]) -> None:
                 sleep_dur = state.frame_time - (end - start)
                 if sleep_dur > 0:
                     sleep(sleep_dur)
+
+                # reload instructions
+                instructions = ensure_load_instructions(state)
+                if len(instructions) == 0:
+                    print('no instructions found')
+                    break
 
 
 def main() -> None:
@@ -55,6 +59,10 @@ def main() -> None:
             try:
                 while(True):
                     instructions = ensure_load_instructions(state)
+                    if len(instructions) == 0:
+                        print('no instructions found')
+                        sleep(10)
+                        continue
                     init(state)
                     run(state, instructions)
             except DisplayTimeoutError as e:

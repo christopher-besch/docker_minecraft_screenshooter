@@ -11,6 +11,10 @@ def load_instructions(state: State) -> Optional[List[ScreenshotPos]]:
             yaml_load = yaml.safe_load(file.read())
 
         instructions: List[ScreenshotPos] = []
+        if 'instructions' not in yaml_load.keys():
+            return []
+        if yaml_load['instructions'] is None:
+            return []
         for name, pos in yaml_load['instructions'].items():
             instructions.append(ScreenshotPos(
                 float(pos['x']),
@@ -20,7 +24,8 @@ def load_instructions(state: State) -> Optional[List[ScreenshotPos]]:
                 float(pos['y_rot']),
                 name,
             ))
-    except:
+    except Exception as e:
+        print(e)
         print('failed to parse instructions.yaml')
         return None
     return instructions
