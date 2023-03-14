@@ -20,7 +20,7 @@ def run(state: State, instructions: List[ScreenshotPos]) -> None:
             idx = len(os.listdir(dir))
             file = f'{dir}/{pos.x}_{pos.y}_{pos.z}_{pos.x_rot}_{pos.y_rot}_{idx:07d}.png'
             tp(state, pos)
-            sleep(0.5)
+            sleep(1)
             print(f'capturing {file}')
             state.disp.waitgrab().save(file)
 
@@ -30,8 +30,8 @@ def run(state: State, instructions: List[ScreenshotPos]) -> None:
         with EasyProcess(['minecraft-launcher']) as proc:
             state.proc = proc
             join_server(state)
-            sleep(2)
             state.pyautogui.press('F1')
+            sleep(5)
 
             while(True):
                 if connection_lost(state):

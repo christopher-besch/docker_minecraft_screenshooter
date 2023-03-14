@@ -35,6 +35,7 @@ def join_server(state: State) -> None:
     wait_and_click(state, 'join_server.png', 60)
 
     wait(state, 'menu_background.png', 120, done_when_not_seen=True)
+    sleep(10)
 
 
 def quit_game_low_res(state: State) -> None:
