@@ -27,7 +27,7 @@ services:
             - "${MC_SCR_PATH}/notfound:/mc_scr/notfound"
             - "${MC_SCR_PATH}/captures:/mc_scr/captures"
         ports:
-            - 22:2845
+            - 2845:22
         restart: "unless-stopped"
 
 
