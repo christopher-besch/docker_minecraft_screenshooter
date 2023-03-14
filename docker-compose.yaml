@@ -3,7 +3,7 @@ version: "3.7"
 services:
     MinecraftScreenshooter:
         image: "chrisbesch/docker_minecraft_screenshooter"
-        container_name: "MinecraftScreenshooter"
+        build: .
         volumes:
             - "${MC_SCR_PATH}/minecraft:/root/.minecraft"
             - "${MC_SCR_PATH}/notfound:/mc_scr/notfound"
@@ -18,5 +18,16 @@ services:
             - WET_INIT
             - FRAME_TIME
             - INSTRUCTIONS_PATH=/mc_scr/other/instructions.yaml
-        # re- start: "unless-stopped"
+        restart: "unless-stopped"
+    MinecraftScreenshooterController:
+        image: chrisbesch/docker_minecraft_screenshooter_controller
+        build: ./controller
+        volumes:
+            - "${MC_SCR_PATH}/other:/mc_scr/other"
+            - "${MC_SCR_PATH}/notfound:/mc_scr/notfound"
+            - "${MC_SCR_PATH}/captures:/mc_scr/captures"
+        ports:
+            - 22:2845
+        restart: "unless-stopped"
+
 
