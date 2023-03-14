@@ -10,20 +10,20 @@ from state import State, ScreenshotPos
 from load_instructions import ensure_load_instructions
 
 
-def take_screenshots(state: State, instructions: List[ScreenshotPos]) -> None:
-    for pos in instructions:
-        dir = f'/mc_scr/captures/{pos.name}'
-        os.makedirs(dir, exist_ok=True)
-
-        idx = len(os.listdir(dir))
-        file = f'{dir}/{pos.x}_{pos.y}_{pos.z}_{pos.x_rot}_{pos.y_rot}_{idx:07d}.png'
-        tp(state, pos)
-        sleep(0.5)
-        print(f'capturing {file}')
-        state.disp.waitgrab().save(file)
-
-
 def run(state: State, instructions: List[ScreenshotPos]) -> None:
+
+    def take_screenshots(state: State, instructions: List[ScreenshotPos]) -> None:
+        for pos in instructions:
+            dir = f'/mc_scr/captures/{pos.name}'
+            os.makedirs(dir, exist_ok=True)
+
+            idx = len(os.listdir(dir))
+            file = f'{dir}/{pos.x}_{pos.y}_{pos.z}_{pos.x_rot}_{pos.y_rot}_{idx:07d}.png'
+            tp(state, pos)
+            sleep(0.5)
+            print(f'capturing {file}')
+            state.disp.waitgrab().save(file)
+
     with SmartDisplay(use_xauth=True, size=(1920, 1080)) as disp:
         state.disp = disp
         state.pyautogui = get_pyautogui()
@@ -32,6 +32,7 @@ def run(state: State, instructions: List[ScreenshotPos]) -> None:
             join_server(state)
             sleep(2)
             state.pyautogui.press('F1')
+
             while(True):
                 if connection_lost(state):
                     print('connection lost')

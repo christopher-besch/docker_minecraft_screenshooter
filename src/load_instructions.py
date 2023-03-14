@@ -26,7 +26,7 @@ def load_instructions(state: State) -> Optional[List[ScreenshotPos]]:
             ))
     except Exception as e:
         print(e)
-        print('failed to parse instructions.yaml')
+        print('failed to parse instructions')
         return None
     return instructions
 
