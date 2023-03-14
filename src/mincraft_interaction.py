@@ -21,7 +21,7 @@ def start_minecraft(state: State) -> None:
     if state.wet_init:
         wait(state, 'multiplayer_btn.png', 500)
     else:
-        wait(state, 'low_res_multiplayer_btn.png', 1000)
+        wait(state, 'low_res_multiplayer_btn.png', 1000, click_when_seen='low_res_continue.png')
 
 
 def join_server(state: State) -> None:
