@@ -1,3 +1,3 @@
-- password: `jacket acer vase cixin liu star`
-- ssh login: `ssh -p 2845 root@45.88.223.150`
-- rsync images: `rsync -rvhP -e 'ssh -p 2845' root@45.88.223.150:/mc_scr/ /home/chris/mc_scr`
+# docker_minecraft_screenshooter
+Record timelapse videos from a vanilla Minecraft Server running in a headless docker container.
+
